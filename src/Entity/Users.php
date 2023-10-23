@@ -53,12 +53,12 @@ class Users
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getFirstname(): ?string
     {
         return $this->firstname;
     }
 
-    public function setName(string $name): static
+    public function setFirstname(string $name): static
     {
         $this->firstname = $name;
 
