@@ -44,6 +44,10 @@ class Users
     #[Assert\Email]
     private ?string $email = null;
 
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Clients $clients = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -81,6 +85,18 @@ class Users
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getClients(): ?Clients
+    {
+        return $this->clients;
+    }
+
+    public function setClients(?Clients $clients): static
+    {
+        $this->clients = $clients;
 
         return $this;
     }
