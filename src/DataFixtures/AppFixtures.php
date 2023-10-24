@@ -16,7 +16,7 @@ class AppFixtures extends Fixture
     }
 
     /**
-     * Crete 15 clients
+     * Create 15 clients
      *
      * @param ObjectManager $manager
      * @return void
@@ -29,6 +29,7 @@ class AppFixtures extends Fixture
             $client = new Clients();
             $client->setEmail($faker->safeEmail())
             ->setPassword($this->passwordHasher->hashPassword($client, '123456'));
+            // One in two has the ROLE_ADMIN.
             if($i % 2 === 1) {
                 $client->setRoles(['ROLE_ADMIN']);
             }

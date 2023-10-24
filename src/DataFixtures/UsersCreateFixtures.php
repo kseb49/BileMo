@@ -12,7 +12,7 @@ class UsersCreateFixtures extends Fixture
 {
 
     /**
-     * Crete 50 users
+     * Create 50 users
      *
      * @param ObjectManager $manager
      * @return void

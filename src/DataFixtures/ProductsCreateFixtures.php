@@ -11,14 +11,15 @@ class ProductsCreateFixtures extends Fixture
 {
 
     /**
-     * Crete 100 products
+     * Create 100 products
      *
      * @param ObjectManager $manager
      * @return void
      */
     public function load(ObjectManager $manager): void
     {
-        $brands = [
+        $brands =
+        [
             "samsung",
             "sony",
             "apple",
@@ -26,7 +27,7 @@ class ProductsCreateFixtures extends Fixture
             "one +",
             "nokia",
             "huawei",
-            "lg"
+            "lg",
         ];
         $faker = Factory::create('fr_FR');
         for ($i=0; $i < 100; $i++) {
@@ -40,6 +41,7 @@ class ProductsCreateFixtures extends Fixture
         }
 
         $manager->flush();
+
     }
 
 
