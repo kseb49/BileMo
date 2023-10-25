@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class HttpExceptioSubscriber implements EventSubscriberInterface
 {
 
+
     /**
      * Grab the Exception event then the HttpException to return a Json response
      *
@@ -20,12 +21,12 @@ class HttpExceptioSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        if($exception instanceof HttpException) {
-            $responseBody =
-            [
+        if ($exception instanceof HttpException) {
+            $responseBody
+            = [
                 "status" => $exception->getStatusCode(),
                 "message" => $exception->getMessage(),
-            ];
+              ];
             $event->setResponse(new JsonResponse($responseBody));
             return;
         }
@@ -33,12 +34,19 @@ class HttpExceptioSubscriber implements EventSubscriberInterface
         $responseBody = ["message" => $exception->getMessage()];
         $event->setResponse(new JsonResponse($responseBody, 500));
         return;
+
     }
 
+    /**
+     * The event to listen ant the method to call
+     *
+     * @return array
+     */
     public static function getSubscribedEvents(): array
     {
-        return [
-            KernelEvents::EXCEPTION => 'onKernelException',
-        ];
+        return [KernelEvents::EXCEPTION => 'onKernelException'];
+
     }
+
+
 }
