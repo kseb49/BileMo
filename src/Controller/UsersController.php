@@ -30,4 +30,23 @@ class UsersController extends AbstractController
     }
 
 
+    #[Route('/users/{id}', name: 'app_user', methods:'GET')]
+    /**
+     * Retrieve a single user
+     *
+     * @param UsersRepository $users
+     * @return JsonResponse
+     */
+    public function singleUser(UsersRepository $users, ClientsRepository $clients, int $id): JsonResponse
+    {
+        $client = $clients->findOneBy(['id' => 46]);
+        $user = $users->findOneBy(['id' => $id]);
+        if ($user->getClients() !== $client) {
+            return $this->json(["message" => "Vous n'avez pas de client avec cet identifiant"], 404);
+        }
+        return $this->json($user, context:['groups' => 'client_user']);
+
+    }
+
+
 }
