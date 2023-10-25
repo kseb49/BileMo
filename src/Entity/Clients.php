@@ -42,7 +42,7 @@ class Clients implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotNull]
     private ?string $password = null;
 
-    #[ORM\OneToMany(mappedBy: 'clients', targetEntity: users::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'clients', targetEntity: Users::class, orphanRemoval: true)]
     private Collection $users;
 
     public function __construct()
