@@ -37,11 +37,7 @@ class ProductController extends AbstractController
      */
     public function singleProduct(Products $product): JsonResponse
     {
-        if ($product) {
-            return $this->json($product);
-        }
-
-        return new JsonResponse(status:404);
+        return $this->json($product);
 
     }
 
