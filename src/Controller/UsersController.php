@@ -23,6 +23,7 @@ class UsersController extends AbstractController
      */
     public function usersList(UsersRepository $users, ClientsRepository $clients): JsonResponse
     {
+        // The client will be the current connected client when auth will be set.
         $client = $clients->findOneBy(['id' => 46]);
         $userList = $users->findByClients($client);
         return $this->json($userList, context:['groups' => 'client_user']);
@@ -39,6 +40,7 @@ class UsersController extends AbstractController
      */
     public function singleUser(UsersRepository $users, ClientsRepository $clients, int $id): JsonResponse
     {
+        // The client will be the current connected client when auth will be set.
         $client = $clients->findOneBy(['id' => 46]);
         $user = $users->findOneBy(['id' => $id]);
         if ($user->getClients() !== $client) {
