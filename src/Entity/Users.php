@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\UsersRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UsersRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
@@ -12,6 +13,7 @@ class Users
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['client_user'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -22,6 +24,7 @@ class Users
         max: 255,
     )]
     #[Assert\Type('string')]
+    #[Groups(['client_user'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
@@ -32,6 +35,7 @@ class Users
         max: 255,
     )]
     #[Assert\Type('string')]
+    #[Groups(['client_user'])]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 180)]
@@ -42,6 +46,7 @@ class Users
         max: 180,
     )]
     #[Assert\Email]
+    #[Groups(['client_user'])]
     private ?string $email = null;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
