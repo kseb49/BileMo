@@ -3,11 +3,14 @@
 namespace App\Controller;
 
 // use App\Entity\Clients;
-use App\Repository\ClientsRepository;
 use App\Repository\UsersRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\ClientsRepository;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('api')]
 class UsersController extends AbstractController
@@ -23,8 +26,7 @@ class UsersController extends AbstractController
      */
     public function usersList(UsersRepository $users, ClientsRepository $clients): JsonResponse
     {
-        // The client will be the current connected client when auth will be set.
-        $client = $clients->findOneBy(['id' => 46]);
+        $client = $this->getUser();
         $userList = $users->findByClients($client);
         return $this->json($userList, context:['groups' => 'client_user']);
 
@@ -38,16 +40,31 @@ class UsersController extends AbstractController
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function singleUser(UsersRepository $users, ClientsRepository $clients, int $id): JsonResponse
+    public function singleUser(UsersRepository $users, int $id): JsonResponse
     {
-        // The client will be the current connected client when auth will be set.
-        $client = $clients->findOneBy(['id' => 46]);
-        $user = $users->findOneBy(['id' => $id]);
-        if ($user->getClients() !== $client) {
+        $client = $this->getUser();
+        $user = $users->findOneBy(['id' => $id,'clients' => $client]);
+        if ($user === null) {
             return $this->json(["message" => "Vous n'avez pas de client avec cet identifiant"], 404);
         }
         return $this->json($user, context:['groups' => 'client_user']);
 
+    }
+
+
+    #[Route('/users', name:'create_user', methods:'POST')]
+    #[IsGranted('ROLE_ADMIN', statusCode:403)]
+    public function createUser(Request $request, EntityManager $entityManager)
+    {
+
+    }
+
+
+    #[Route('/users/{id}', name:'delete_user', methods:'DELETE')]
+    #[IsGranted('ROLE_ADMIN', statusCode:403)]
+    public function deleteUser(int $id, UsersRepository $users)
+    {
+        
     }
 
 
