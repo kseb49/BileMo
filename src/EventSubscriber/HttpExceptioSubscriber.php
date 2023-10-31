@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use TypeError;
 
 class HttpExceptioSubscriber implements EventSubscriberInterface
 {
@@ -31,11 +32,18 @@ class HttpExceptioSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if ($exception instanceof TypeError) {
+            $responseBody = ["message" => $exception->getMessage()];
+            $event->setResponse(new JsonResponse($responseBody, 400));
+            return;
+        }
+
         $responseBody = ["message" => $exception->getMessage()];
         $event->setResponse(new JsonResponse($responseBody, 500));
         return;
 
     }
+
 
     /**
      * The event to listen ant the method to call
