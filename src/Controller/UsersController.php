@@ -2,12 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\Clients;
 use App\Entity\Users;
 use App\Repository\UsersRepository;
-use App\Repository\ClientsRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,7 +27,7 @@ class UsersController extends AbstractController
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function usersList(UsersRepository $users, ClientsRepository $clients): JsonResponse
+    public function usersList(UsersRepository $users): JsonResponse
     {
         $client = $this->getUser();
         $userList = $users->findByClients($client);
@@ -60,7 +57,16 @@ class UsersController extends AbstractController
 
     #[Route('/users', name:'create_user', methods:'POST')]
     #[IsGranted('ROLE_ADMIN', message:"Vous n'avez pas les droits suffisants pour effectuer cet action", statusCode:403)]
-    public function createUser(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer)
+    /**
+     * Create an user
+     *
+     * @param Request $request
+     * @param EntityManagerInterface $entityManager
+     * @param ValidatorInterface $validator
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
+    public function createUser(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer) :JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), Users::class, 'json');
         $errors = $validator->validate($user);
