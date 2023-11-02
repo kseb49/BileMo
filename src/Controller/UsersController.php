@@ -77,7 +77,7 @@ class UsersController extends AbstractController
             }
             return new JsonResponse($messages, 400, [], false);
         }
-        // Look for a duplicate user
+        // Look for a duplicate user.
         $checkForADuplicate = $entityManager->getRepository(Users::class)->findOneBy(['email' => $user->getEmail(), 'clients' => $this->getUser()]);
         if ($checkForADuplicate !== null) {
             throw new httpException(400, "Un utilisateur avec cet email existe déjà");
