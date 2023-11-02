@@ -60,7 +60,7 @@ class UsersController extends AbstractController
     /**
      * Create an user
      *
-     * @param Request $request
+     * @param Request $request Http request
      * @param EntityManagerInterface $entityManager
      * @param ValidatorInterface $validator
      * @param SerializerInterface $serializer
@@ -71,9 +71,9 @@ class UsersController extends AbstractController
         $user = $serializer->deserialize($request->getContent(), Users::class, 'json');
         $errors = $validator->validate($user);
         if (count($errors) > 0) {
-            $messages =[];
-            foreach ($errors as $key => $value) {
-                $messages[] = ["Erreur {$key}" => $errors->get($key)->getMessage()];
+            $messages = [];
+            foreach ($errors as $value) {
+                $messages[] = [$value->getPropertyPath() => $value->getMessage()];
             }
             return new JsonResponse($messages, 400, [], false);
         }
