@@ -17,6 +17,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UsersRepository extends ServiceEntityRepository
 {
+
+    public const RESULT_PER_PAGE = 3;
+
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Users::class);
@@ -30,8 +34,20 @@ class UsersRepository extends ServiceEntityRepository
        return $this->createQueryBuilder('u')
            ->andWhere('u.clients = :val')
            ->setParameter('val', $client)
+           ->getQuery()
+           ->getResult()
+       ;
+   }
+
+
+   public function findByClientsWithPagination(Clients $client, int $offset = 0): array
+   {
+       return $this->createQueryBuilder('u')
+           ->andWhere('u.clients = :val')
+           ->setParameter('val', $client)
            ->orderBy('u.id', 'ASC')
-        //    ->setMaxResults(10)
+           ->setMaxResults(self::RESULT_PER_PAGE)
+           ->setFirstResult($offset)
            ->getQuery()
            ->getResult()
        ;

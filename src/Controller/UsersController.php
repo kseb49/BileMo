@@ -12,26 +12,47 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\UrlHelper;
+use TypeError;
 
 #[Route('api')]
 class UsersController extends AbstractController
 {
 
 
-    #[Route('/users', name: 'app_users', methods:'GET')]
+    #[Route('/users', name: 'app_users', methods:'GET', )]
     /**
      * Retrieve all the users linked to a client
      *
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function usersList(UsersRepository $users): JsonResponse
+    public function usersList(UsersRepository $users, #[MapQueryParameter] int $page = 0, UrlHelper $url): JsonResponse
     {
         $client = $this->getUser();
-        $userList = $users->findByClients($client);
-        return $this->json($userList, context:['groups' => 'client_user']);
+        if (gmp_sign($page) === -1) {
+            throw new TypeError("Le numéro de page ne peut être négatif", 404);
+        }
+        // Considering the "0" value means the first page
+        $page = $page === 0 ? 1 : $page;
+
+        /**
+         * Retrieve the numbers of pages available
+         * @var int
+         */
+        $pages = intval(ceil(count($users->findByClients($client)) / $users::RESULT_PER_PAGE));
+
+        if ($page > $pages) {
+            throw new HttpException(404, "Cette page n'existe pas");
+        }
+
+        $offset = $page === 1 ? $page-1 : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
+        $userList = $users->findByClientsWithPagination($client, $offset);
+        $this->generateUrl('app_users', ['page' => 1]);
+        return $this->json([$userList, 'page' => $page.'/'.$pages], context:['groups' => 'client_user']);
 
     }
 

@@ -10,10 +10,13 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+
+
     public function __construct(private UserPasswordHasherInterface $passwordHasher)
     {
 
     }
+
 
     /**
      * Create 15 clients
@@ -37,6 +40,7 @@ class AppFixtures extends Fixture
         }
 
         $manager->flush();
+
     }
 
 
