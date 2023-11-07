@@ -30,7 +30,7 @@ class UsersController extends AbstractController
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function usersList(UsersRepository $users, #[MapQueryParameter] int $page = 0, UrlHelper $url): JsonResponse
+    public function usersList(UsersRepository $users, #[MapQueryParameter] int $page = 0): JsonResponse
     {
         $client = $this->getUser();
         if (gmp_sign($page) === -1) {
@@ -51,7 +51,6 @@ class UsersController extends AbstractController
 
         $offset = $page === 1 ? $page-1 : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
         $userList = $users->findByClientsWithPagination($client, $offset);
-        $this->generateUrl('app_users', ['page' => 1]);
         return $this->json([$userList, 'page' => $page.'/'.$pages], context:['groups' => 'client_user']);
 
     }
