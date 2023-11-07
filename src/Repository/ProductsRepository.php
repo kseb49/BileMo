@@ -16,9 +16,24 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ProductsRepository extends ServiceEntityRepository
 {
+    public const RESULT_PER_PAGE = 15;
+
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Products::class);
+    }
+
+
+    public function findWithPagination(int $offset = 0): array
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults(self::RESULT_PER_PAGE)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
 //    /**

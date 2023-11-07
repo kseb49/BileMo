@@ -2,11 +2,14 @@
 
 namespace App\Controller;
 
+use TypeError;
 use App\Entity\Products;
 use App\Repository\ProductsRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('api')]
 class ProductController extends AbstractController
@@ -20,10 +23,27 @@ class ProductController extends AbstractController
      * @param ProductsRepository $productsRepo
      * @return JsonResponse
      */
-    public function productsList(ProductsRepository $productsRepo): JsonResponse
+    public function productsList(ProductsRepository $productsRepo, #[MapQueryParameter] int $page = 0): JsonResponse
     {
-        $products = $productsRepo->findAll();
-        return $this->json($products);
+        if (gmp_sign($page) === -1) {
+            throw new TypeError("Le numéro de page ne peut être négatif", 404);
+        }
+        // Considering the "0" value means the first page
+        $page = $page === 0 ? 1 : $page;
+
+        /**
+         * Retrieve the numbers of pages available
+         * @var int
+         */
+        $pages = intval(ceil(count($productsRepo->findAll()) / $productsRepo::RESULT_PER_PAGE));
+
+        if ($page > $pages) {
+            throw new HttpException(404, "Cette page n'existe pas");
+        }
+
+        $offset = $page === 1 ? $page-1 : ($page*$productsRepo::RESULT_PER_PAGE)-$productsRepo::RESULT_PER_PAGE;
+        $products = $productsRepo->findWithPagination($offset);
+        return $this->json([$products, 'page' => $page.'/'.$pages]);
 
     }
 
