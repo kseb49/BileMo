@@ -5,6 +5,8 @@ namespace App\Controller;
 use TypeError;
 use App\Entity\Products;
 use App\Repository\ProductsRepository;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -23,8 +25,9 @@ class ProductController extends AbstractController
      * @param ProductsRepository $productsRepo
      * @return JsonResponse
      */
-    public function productsList(ProductsRepository $productsRepo, #[MapQueryParameter] int $page = 0): JsonResponse
+    public function productsList(ProductsRepository $productsRepo, CacheInterface $cache, #[MapQueryParameter] int $page = 0): JsonResponse
     {
+
         if (gmp_sign($page) === -1) {
             throw new TypeError("Le numéro de page ne peut être négatif", 404);
         }
@@ -40,9 +43,14 @@ class ProductController extends AbstractController
         if ($page > $pages) {
             throw new HttpException(404, "Cette page n'existe pas");
         }
-
         $offset = $page === 1 ? $page-1 : ($page*$productsRepo::RESULT_PER_PAGE)-$productsRepo::RESULT_PER_PAGE;
-        $products = $productsRepo->findWithPagination($offset);
+        $products = $cache->get('products_list_'.$page, function(ItemInterface $item) use ($productsRepo, $offset)
+            {
+                echo ('mise en cache');
+                $item->expiresAfter(20);
+                return $productsRepo->findWithPagination($offset);
+            }
+        );
         return $this->json([$products, 'page' => $page.'/'.$pages]);
 
     }
