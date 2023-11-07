@@ -17,7 +17,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UsersRepository extends ServiceEntityRepository
 {
-
+    /**
+     * The number of desired results (limit).
+     */
     public const RESULT_PER_PAGE = 3;
 
 
