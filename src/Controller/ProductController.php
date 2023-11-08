@@ -44,7 +44,6 @@ class ProductController extends AbstractController
         // $products = $this->caches->cache($offset, Products::class, 'products_list_'.$page);dd($products);
         $products = $cache->get('products_list_'.$page, function(ItemInterface $item) use ($productsRepo, $offset)
             {
-                echo ('mise en cache');
                 $item->expiresAfter(20);
                 return $productsRepo->findWithPagination($offset);
             }
@@ -67,7 +66,6 @@ class ProductController extends AbstractController
     {
         $product = $cache->get('product'.$id, function(ItemInterface $item) use ($productsRepo, $id)
         {
-            echo ('mise en cache');
             $item->expiresAfter(1000);
             return $productsRepo->findOneById($id);
         }

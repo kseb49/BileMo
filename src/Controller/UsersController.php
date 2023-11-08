@@ -51,7 +51,6 @@ class UsersController extends AbstractController
         $offset = ($page === 1) ? ($page -1) : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
         $userList = $cache->get('users_'.$page, function(ItemInterface $item) use($offset, $users, $client)
         {
-            echo('mise en cache');
             $item->expiresAfter(10000);
             $item->tag('users');
             return $users->findByClientsWithPagination($client, $offset);
@@ -74,7 +73,6 @@ class UsersController extends AbstractController
         $client = $this->getUser();
         $user = $cache->get('singleUser'.$id, function(ItemInterface $item) use($users, $id, $client)
         {
-            echo('mise en cache');
             $item->expiresAfter(1000);
             $item->tag('users');
             return $users->findOneBy(['id' => $id, 'clients' => $client]);
