@@ -72,10 +72,20 @@ class UsersController extends AbstractController
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function singleUser(UsersRepository $users, int $id): JsonResponse
+    public function singleUser(UsersRepository $users, int $id, TagAwareCacheInterface $cache): JsonResponse
     {
         $client = $this->getUser();
-        $user = $users->findOneBy(['id' => $id,'clients' => $client]);
+        // $user = $users->findOneBy(['id' => $id,'clients' => $client]);
+        // if ($user === null) {
+        //     return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
+        // }
+        $user = $cache->get('singleUser'.$id, function(ItemInterface $item) use($users, $id, $client)
+        {
+            echo('mise en cache');
+            $item->expiresAfter(1000);
+            $item->tag('users');
+            return $users->findOneBy(['id' => $id,'clients' => $client]);
+        });
         if ($user === null) {
             return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
         }
