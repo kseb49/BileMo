@@ -105,7 +105,7 @@ class UsersController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function createUser(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer) :JsonResponse
+    public function createUser(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer, TagAwareCacheInterface $cache) :JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), Users::class, 'json');
         $errors = $validator->validate($user);
@@ -125,6 +125,7 @@ class UsersController extends AbstractController
         $user->setClients($this->getUser());
         $entityManager->persist($user);
         $entityManager->flush();
+        $cache->invalidateTags(['users']);
         return $this->json([$user], 201, context:['groups' => 'client_user']);
 
     }
