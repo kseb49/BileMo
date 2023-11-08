@@ -3,8 +3,9 @@
 namespace App\Controller;
 
 use TypeError;
-use App\Entity\Products;
 use App\Repository\ProductsRepository;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -15,34 +16,38 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class ProductController extends AbstractController
 {
 
-
     #[Route('/products', name: 'products', methods:['GET'])]
     /**
      * Get all the products
      *
+     * @param integer $page The requested page
+     * @param CacheInterface $cache
      * @param ProductsRepository $productsRepo
      * @return JsonResponse
      */
-    public function productsList(ProductsRepository $productsRepo, #[MapQueryParameter] int $page = 0): JsonResponse
+    public function productsList(ProductsRepository $productsRepo, CacheInterface $cache, #[MapQueryParameter] int $page= 0): JsonResponse
     {
+
         if (gmp_sign($page) === -1) {
             throw new TypeError("Le numéro de page ne peut être négatif", 404);
         }
-        // Considering the "0" value means the first page
+        // Considering the "0" value means the first page.
         $page = $page === 0 ? 1 : $page;
 
-        /**
-         * Retrieve the numbers of pages available
-         * @var int
-         */
-        $pages = intval(ceil(count($productsRepo->findAll()) / $productsRepo::RESULT_PER_PAGE));
+        // Retrieve the numbers of pages available.
+        $pages = (int)(ceil(count($productsRepo->findAll()) / $productsRepo::RESULT_PER_PAGE));
 
         if ($page > $pages) {
             throw new HttpException(404, "Cette page n'existe pas");
         }
-
-        $offset = $page === 1 ? $page-1 : ($page*$productsRepo::RESULT_PER_PAGE)-$productsRepo::RESULT_PER_PAGE;
-        $products = $productsRepo->findWithPagination($offset);
+        $offset = ($page === 1) ? ($page -1) : ($page*$productsRepo::RESULT_PER_PAGE)-$productsRepo::RESULT_PER_PAGE;
+        // $products = $this->caches->cache($offset, Products::class, 'products_list_'.$page);dd($products);
+        $products = $cache->get('products_list_'.$page, function(ItemInterface $item) use ($productsRepo, $offset)
+            {
+                $item->expiresAfter(20);
+                return $productsRepo->findWithPagination($offset);
+            }
+        );
         return $this->json([$products, 'page' => $page.'/'.$pages]);
 
     }
@@ -52,11 +57,24 @@ class ProductController extends AbstractController
     /**
      * Get a single product
      *
-     * @param Products $product
+     * @param CacheInterface $cache
+     * @param integer $id
+     * @param ProductsRepository $productsRepo
      * @return JsonResponse
      */
-    public function singleProduct(Products $product): JsonResponse
+    public function singleProduct(CacheInterface $cache, int $id, ProductsRepository $productsRepo): JsonResponse
     {
+        $product = $cache->get('product'.$id, function(ItemInterface $item) use ($productsRepo, $id)
+        {
+            $item->expiresAfter(1000);
+            return $productsRepo->findOneById($id);
+        }
+        
+        );
+        if($product === null) {
+            throw new HttpException(404, "Ce produit n'existe pas");
+        }
+
         return $this->json($product);
 
     }

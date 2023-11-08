@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use TypeError;
 use App\Entity\Users;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,42 +16,46 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\UrlHelper;
-use TypeError;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Route('api')]
 class UsersController extends AbstractController
 {
 
 
-    #[Route('/users', name: 'app_users', methods:'GET', )]
+    #[Route('/users', name: 'app_users', methods:'GET')]
     /**
      * Retrieve all the users linked to a client
      *
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function usersList(UsersRepository $users, #[MapQueryParameter] int $page = 0): JsonResponse
+    public function usersList(UsersRepository $users, TagAwareCacheInterface $cache, #[MapQueryParameter] int $page= 0): JsonResponse
     {
         $client = $this->getUser();
         if (gmp_sign($page) === -1) {
             throw new TypeError("Le numéro de page ne peut être négatif", 404);
         }
-        // Considering the "0" value means the first page
+
+        // Considering the "0" value means the first page.
         $page = $page === 0 ? 1 : $page;
 
-        /**
-         * Retrieve the numbers of pages available
-         * @var int
-         */
-        $pages = intval(ceil(count($users->findByClients($client)) / $users::RESULT_PER_PAGE));
+        // Retrieve the numbers of pages available.
+        $pages = (int)(ceil(count($users->findByClients($client)) / $users::RESULT_PER_PAGE));
 
         if ($page > $pages) {
             throw new HttpException(404, "Cette page n'existe pas");
         }
 
-        $offset = $page === 1 ? $page-1 : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
-        $userList = $users->findByClientsWithPagination($client, $offset);
+        $offset = ($page === 1) ? ($page -1) : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
+        $userList = $cache->get('users_'.$page, function(ItemInterface $item) use($offset, $users, $client)
+        {
+            $item->expiresAfter(10000);
+            $item->tag('users');
+            return $users->findByClientsWithPagination($client, $offset);
+        });
+
         return $this->json([$userList, 'page' => $page.'/'.$pages], context:['groups' => 'client_user']);
 
     }
@@ -63,10 +68,15 @@ class UsersController extends AbstractController
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function singleUser(UsersRepository $users, int $id): JsonResponse
+    public function singleUser(UsersRepository $users, int $id, TagAwareCacheInterface $cache): JsonResponse
     {
         $client = $this->getUser();
-        $user = $users->findOneBy(['id' => $id,'clients' => $client]);
+        $user = $cache->get('singleUser'.$id, function(ItemInterface $item) use($users, $id, $client)
+        {
+            $item->expiresAfter(1000);
+            $item->tag('users');
+            return $users->findOneBy(['id' => $id, 'clients' => $client]);
+        });
         if ($user === null) {
             return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
         }
@@ -86,7 +96,7 @@ class UsersController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function createUser(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer) :JsonResponse
+    public function createUser(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer, TagAwareCacheInterface $cache) :JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), Users::class, 'json');
         $errors = $validator->validate($user);
@@ -106,6 +116,8 @@ class UsersController extends AbstractController
         $user->setClients($this->getUser());
         $entityManager->persist($user);
         $entityManager->flush();
+        // Empty the cache.
+        $cache->invalidateTags(['users']);
         return $this->json([$user], 201, context:['groups' => 'client_user']);
 
     }
@@ -121,7 +133,7 @@ class UsersController extends AbstractController
      * @param EntityManagerInterface $entityManager
      * @return void
      */
-    public function deleteUser(int $id, UsersRepository $users, EntityManagerInterface $entityManager) :JsonResponse | Response
+    public function deleteUser(int $id, UsersRepository $users, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache) :JsonResponse | Response
     {
         $client = $this->getUser();
         $user = $users->findOneBy(['id' => $id,'clients' => $client]);
@@ -130,6 +142,8 @@ class UsersController extends AbstractController
         }
         $entityManager->remove($user);
         $entityManager->flush();
+        // Empty the cache.
+        $cache->invalidateTags(['users']);
         return new Response(status: 204);
 
     }
