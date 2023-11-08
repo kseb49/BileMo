@@ -63,8 +63,20 @@ class ProductController extends AbstractController
      * @param Products $product
      * @return JsonResponse
      */
-    public function singleProduct(Products $product): JsonResponse
+    public function singleProduct(CacheInterface $cache, int $id, ProductsRepository $productsRepo): JsonResponse
     {
+        $product = $cache->get('product'.$id, function(ItemInterface $item) use ($productsRepo, $id)
+        {
+            echo ('mise en cache');
+            $item->expiresAfter(1000);
+            return $productsRepo->findOneById($id);
+        }
+        
+        );
+        if($product === null) {
+            throw new HttpException(404, "Ce produit n'existe pas");
+        }
+
         return $this->json($product);
 
     }

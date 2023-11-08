@@ -6,7 +6,6 @@ use TypeError;
 use App\Entity\Users;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -75,10 +74,6 @@ class UsersController extends AbstractController
     public function singleUser(UsersRepository $users, int $id, TagAwareCacheInterface $cache): JsonResponse
     {
         $client = $this->getUser();
-        // $user = $users->findOneBy(['id' => $id,'clients' => $client]);
-        // if ($user === null) {
-        //     return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
-        // }
         $user = $cache->get('singleUser'.$id, function(ItemInterface $item) use($users, $id, $client)
         {
             echo('mise en cache');
@@ -125,6 +120,7 @@ class UsersController extends AbstractController
         $user->setClients($this->getUser());
         $entityManager->persist($user);
         $entityManager->flush();
+        // Empty the cache.
         $cache->invalidateTags(['users']);
         return $this->json([$user], 201, context:['groups' => 'client_user']);
 
