@@ -24,33 +24,31 @@ class UsersController extends AbstractController
 {
 
 
-    #[Route('/users', name: 'app_users', methods:'GET', )]
+    #[Route('/users', name: 'app_users', methods:'GET')]
     /**
      * Retrieve all the users linked to a client
      *
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function usersList(UsersRepository $users, TagAwareCacheInterface $cache, #[MapQueryParameter] int $page = 0): JsonResponse
+    public function usersList(UsersRepository $users, TagAwareCacheInterface $cache, #[MapQueryParameter] int $page= 0): JsonResponse
     {
         $client = $this->getUser();
         if (gmp_sign($page) === -1) {
             throw new TypeError("Le numéro de page ne peut être négatif", 404);
         }
-        // Considering the "0" value means the first page
+
+        // Considering the "0" value means the first page.
         $page = $page === 0 ? 1 : $page;
 
-        /**
-         * Retrieve the numbers of pages available
-         * @var int
-         */
-        $pages = intval(ceil(count($users->findByClients($client)) / $users::RESULT_PER_PAGE));
+        // Retrieve the numbers of pages available.
+        $pages = (int)(ceil(count($users->findByClients($client)) / $users::RESULT_PER_PAGE));
 
         if ($page > $pages) {
             throw new HttpException(404, "Cette page n'existe pas");
         }
 
-        $offset = $page === 1 ? $page-1 : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
+        $offset = ($page === 1) ? ($page -1) : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
         $userList = $cache->get('users_'.$page, function(ItemInterface $item) use($offset, $users, $client)
         {
             echo('mise en cache');
@@ -58,7 +56,7 @@ class UsersController extends AbstractController
             $item->tag('users');
             return $users->findByClientsWithPagination($client, $offset);
         });
-        // $userList = $users->findByClientsWithPagination($client, $offset);
+
         return $this->json([$userList, 'page' => $page.'/'.$pages], context:['groups' => 'client_user']);
 
     }
@@ -79,7 +77,7 @@ class UsersController extends AbstractController
             echo('mise en cache');
             $item->expiresAfter(1000);
             $item->tag('users');
-            return $users->findOneBy(['id' => $id,'clients' => $client]);
+            return $users->findOneBy(['id' => $id, 'clients' => $client]);
         });
         if ($user === null) {
             return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
