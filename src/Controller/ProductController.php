@@ -17,7 +17,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class ProductController extends AbstractController
 {
 
-
     #[Route('/products', name: 'products', methods:['GET'])]
     /**
      * Get all the products
@@ -44,6 +43,7 @@ class ProductController extends AbstractController
             throw new HttpException(404, "Cette page n'existe pas");
         }
         $offset = $page === 1 ? $page-1 : ($page*$productsRepo::RESULT_PER_PAGE)-$productsRepo::RESULT_PER_PAGE;
+        // $products = $this->caches->cache($offset, Products::class, 'products_list_'.$page);dd($products);
         $products = $cache->get('products_list_'.$page, function(ItemInterface $item) use ($productsRepo, $offset)
             {
                 echo ('mise en cache');

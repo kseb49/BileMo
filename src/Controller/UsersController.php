@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use TypeError;
 use App\Entity\Users;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,8 +17,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\UrlHelper;
-use TypeError;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Route('api')]
 class UsersController extends AbstractController
@@ -30,7 +32,7 @@ class UsersController extends AbstractController
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function usersList(UsersRepository $users, #[MapQueryParameter] int $page = 0): JsonResponse
+    public function usersList(UsersRepository $users, TagAwareCacheInterface $cache, #[MapQueryParameter] int $page = 0): JsonResponse
     {
         $client = $this->getUser();
         if (gmp_sign($page) === -1) {
@@ -50,7 +52,14 @@ class UsersController extends AbstractController
         }
 
         $offset = $page === 1 ? $page-1 : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
-        $userList = $users->findByClientsWithPagination($client, $offset);
+        $userList = $cache->get('users_'.$page, function(ItemInterface $item) use($offset, $users, $client)
+        {
+            echo('mise en cache');
+            $item->expiresAfter(10000);
+            $item->tag('users');
+            return $users->findByClientsWithPagination($client, $offset);
+        });
+        // $userList = $users->findByClientsWithPagination($client, $offset);
         return $this->json([$userList, 'page' => $page.'/'.$pages], context:['groups' => 'client_user']);
 
     }
@@ -121,7 +130,7 @@ class UsersController extends AbstractController
      * @param EntityManagerInterface $entityManager
      * @return void
      */
-    public function deleteUser(int $id, UsersRepository $users, EntityManagerInterface $entityManager) :JsonResponse | Response
+    public function deleteUser(int $id, UsersRepository $users, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache) :JsonResponse | Response
     {
         $client = $this->getUser();
         $user = $users->findOneBy(['id' => $id,'clients' => $client]);
@@ -130,6 +139,8 @@ class UsersController extends AbstractController
         }
         $entityManager->remove($user);
         $entityManager->flush();
+        // Empty the cache.
+        $cache->invalidateTags(['users']);
         return new Response(status: 204);
 
     }
