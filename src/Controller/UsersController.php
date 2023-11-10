@@ -5,19 +5,21 @@ namespace App\Controller;
 use TypeError;
 use App\Entity\Users;
 use App\Repository\UsersRepository;
+use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
+
 
 #[Route('api')]
 class UsersController extends AbstractController
@@ -49,14 +51,15 @@ class UsersController extends AbstractController
         }
 
         $offset = ($page === 1) ? ($page -1) : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
-        $userList = $cache->get('users_'.$page, function(ItemInterface $item) use($offset, $users, $client)
+        $key = preg_replace('#@.#','',$client->getUserIdentifier()).'users_'.$page;
+        $userList = $cache->get($key, function(ItemInterface $item) use($offset, $users, $client)
         {
             $item->expiresAfter(10000);
-            $item->tag('users');
+            $item->tag('users'.preg_replace('#@.#','',$client->getUserIdentifier()));
             return $users->findByClientsWithPagination($client, $offset);
         });
-
-        return $this->json([$userList, 'page' => $page.'/'.$pages], context:['groups' => 'client_user']);
+        $context = SerializationContext::create()->setGroups(['client_user']);
+        return $this->json([$userList, 'page' => $page.'/'.$pages], context: $context);
 
     }
 
@@ -71,16 +74,18 @@ class UsersController extends AbstractController
     public function singleUser(UsersRepository $users, int $id, TagAwareCacheInterface $cache): JsonResponse
     {
         $client = $this->getUser();
-        $user = $cache->get('singleUser'.$id, function(ItemInterface $item) use($users, $id, $client)
+        $key = preg_replace('#@.#', '', $client->getUserIdentifier()).'singleUser'.$id;
+        $user = $cache->get($key, function(ItemInterface $item) use($users, $id, $client)
         {
-            $item->expiresAfter(1000);
-            $item->tag('users');
+            $item->expiresAfter(3600);
+            $item->tag('users'.$id);
             return $users->findOneBy(['id' => $id, 'clients' => $client]);
         });
         if ($user === null) {
-            return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
+            return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], status: 404);
         }
-        return $this->json($user, context:['groups' => 'client_user']);
+        $context = SerializationContext::create()->setGroups(['client_user']);
+        return $this->json($user, context:$context);
 
     }
 
@@ -98,6 +103,7 @@ class UsersController extends AbstractController
      */
     public function createUser(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer, TagAwareCacheInterface $cache) :JsonResponse
     {
+        $client = $this->getUser();
         $user = $serializer->deserialize($request->getContent(), Users::class, 'json');
         $errors = $validator->validate($user);
         if (count($errors) > 0) {
@@ -117,8 +123,9 @@ class UsersController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
         // Empty the cache.
-        $cache->invalidateTags(['users']);
-        return $this->json([$user], 201, context:['groups' => 'client_user']);
+        $cache->invalidateTags(['users'.preg_replace('#@.#','',$client->getUserIdentifier())]);
+        $context = SerializationContext::create()->setGroups(['client_user']);
+        return $this->json([$user], status: 201, context:$context);
 
     }
 
@@ -138,12 +145,12 @@ class UsersController extends AbstractController
         $client = $this->getUser();
         $user = $users->findOneBy(['id' => $id,'clients' => $client]);
         if ($user === null) {
-            return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
+            return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], status: 404);
         }
         $entityManager->remove($user);
         $entityManager->flush();
         // Empty the cache.
-        $cache->invalidateTags(['users']);
+        $cache->invalidateTags(['users'.$id]);
         return new Response(status: 204);
 
     }

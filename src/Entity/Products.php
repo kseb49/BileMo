@@ -5,6 +5,18 @@ namespace App\Entity;
 use App\Repository\ProductsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
+
+/**
+ * @Hateoas\Relation(
+ *      name = "self",
+ *      href = @Hateoas\Route(
+ *          "singleProduct",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      )
+ * )
+ */
 
 #[ORM\Entity(repositoryClass: ProductsRepository::class)]
 class Products
@@ -12,6 +24,7 @@ class Products
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @Serializer\XmlAttribute */
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]

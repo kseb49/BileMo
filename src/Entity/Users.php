@@ -4,8 +4,38 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UsersRepository;
-use Symfony\Component\Serializer\Annotation\Groups;
+// use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation\Groups;
+/**
+ * @Hateoas\Relation(
+ *      name = "detail",
+ *      href = @Hateoas\Route(
+ *          "app_user",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ * exclusion = @Hateoas\Exclusion(groups="client_user")
+ * )
+ *
+ * @Hateoas\Relation(
+ *      name = "delete",
+ *      href = @Hateoas\Route(
+ *          "delete_user",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ * exclusion = @Hateoas\Exclusion(groups="client_user", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ *
+ * @Hateoas\Relation(
+ *      name = "create",
+ *      href = @Hateoas\Route(
+ *          "create_user"
+ *      ),
+ * exclusion = @Hateoas\Exclusion(groups="client_user", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ *
+ */
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 class Users
