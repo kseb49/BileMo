@@ -1,0 +1,50 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: BileMo
+            description: Sélection de téléphones mobiles haut de gamme
+            version: 1.0.0
+        components:
+            securitySchemes:
+                bearerAuth:            # arbitrary name for the security scheme
+                    type: apiKey
+                    scheme: bearer
+                    bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+            schemas:
+                Token:
+                    type: object
+                    properties:
+                        token:
+                            type: string
+                            readOnly: true
+        paths:
+            /api/check_cred:
+                post:
+                    summary: Identification de l'utilisateur
+                    requestBody:
+                        description: Connexion avec __email__ et __mot de passe__ pour obtenir le jeton d'authentification
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        username:
+                                            type: string
+                                            default: client@email.com
+                                        password:
+                                            type: string
+                                            default: password
+                    responses:
+                        '200':
+                            description: OK
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Token'
+        security:
+            - bearerAuth: []
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+
