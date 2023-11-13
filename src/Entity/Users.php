@@ -4,11 +4,18 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UsersRepository;
-// use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation\Groups;
 /**
+ * @Hateoas\Relation(
+ *      name = "liste",
+ *      href = @Hateoas\Route(
+ *          "app_users",
+ *      ),
+ * exclusion = @Hateoas\Exclusion(groups="client_user")
+ * )
+ * 
  * @Hateoas\Relation(
  *      name = "detail",
  *      href = @Hateoas\Route(
