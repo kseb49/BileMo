@@ -9,7 +9,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @Hateoas\Relation(
- *      name = "self",
+ *      name = "liste",
  *      href = @Hateoas\Route(
  *          "products",
  *      )
