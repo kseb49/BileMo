@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Products;
 use TypeError;
 use App\Repository\ProductsRepository;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -11,12 +12,32 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Attributes as OA;
 
 #[Route('api')]
 class ProductController extends AbstractController
 {
 
     #[Route('/products', name: 'products', methods:['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: 'Retourne la liste des produits de la page demandée',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Products::class))
+        )
+    )]
+    #[OA\Parameter(
+        name: 'page',
+        example:'?page=numeroPage',
+        in: 'query',
+        description: 'La page de résultat demandé',
+        schema: new OA\Schema(type: 'int', default: 1)
+    )]
+    #[OA\Tag(name: 'Products')]
+    #[Security(name: 'Bearer')]
     /**
      * Get all the products
      *
@@ -54,6 +75,23 @@ class ProductController extends AbstractController
 
 
     #[Route('/products/{id}', name: 'singleProduct', methods:['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: "Détail d'un produit",
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Products::class))
+        )
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required:true,
+        description: "L'identifiant du produit",
+        schema: new OA\Schema(type: 'int')
+    )]
+    #[OA\Tag(name: 'Products')]
+    #[Security(name: 'Bearer')]
     /**
      * Get a single product
      *
