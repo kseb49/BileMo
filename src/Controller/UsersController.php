@@ -19,6 +19,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
 
 
 #[Route('api')]
@@ -27,6 +29,22 @@ class UsersController extends AbstractController
 
 
     #[Route('/users', name: 'app_users', methods:'GET')]
+    #[OA\Response(
+        response: 200,
+        description: 'Retourne la liste des utilisateurs',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
+        )
+    )]
+    #[OA\Parameter(
+        name: 'page',
+        example:'?page=numeroPage',
+        in: 'query',
+        description: 'La page de résultat demandé',
+        schema: new OA\Schema(type: 'int', default: 1)
+    )]
+    #[OA\Tag(name: 'Users')]
     /**
      * Retrieve all the users linked to a client
      *
@@ -65,6 +83,21 @@ class UsersController extends AbstractController
 
 
     #[Route('/users/{id}', name: 'app_user', methods:'GET')]
+    #[OA\Response(
+        response: 200,
+        description: "Retourne le détail de l'utilisateur",
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
+        )
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        description: "L'identifiant de l'utilisateur",
+        schema: new OA\Schema(type: 'int')
+    )]
+    #[OA\Tag(name: 'Users')]
     /**
      * Retrieve a single user
      *
@@ -92,6 +125,23 @@ class UsersController extends AbstractController
 
     #[Route('/users', name:'create_user', methods:'POST')]
     #[IsGranted('ROLE_ADMIN', message:"Vous n'avez pas les droits suffisants pour effectuer cet action", statusCode:403)]
+    #[OA\Response(
+        response: 201,
+        description: "Retourne l'utilisateur créé",
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
+        )
+    )]
+    #[OA\RequestBody(
+        required:true,
+        description:"Les informations de l'utilisateur que l'on souhaite crééer",
+        content: new OA\JsonContent(
+            type:'array',
+            items: new OA\Items(ref:new Model(type:Users::class, groups:['client_user'])),
+        )
+    )]
+    #[OA\Tag(name: 'Users')]
     /**
      * Create an user
      *
@@ -132,6 +182,17 @@ class UsersController extends AbstractController
 
     #[Route('/users/{id}', name:'delete_user', methods:'DELETE')]
     #[IsGranted('ROLE_ADMIN', message:"Vous n'avez pas les droits suffisants pour effectuer cet action", statusCode:403)]
+    #[OA\Response(
+        response: 204,
+        description:"L'utilisateur a était supprimé"
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        description: "L'identifiant de l'utilisateur à supprimer",
+        schema: new OA\Schema(type: 'int')
+    )]
+    #[OA\Tag(name: 'Users')]
     /**
      * Delete an user
      *

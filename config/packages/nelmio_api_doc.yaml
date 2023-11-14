@@ -17,12 +17,15 @@ nelmio_api_doc:
                         token:
                             type: string
                             readOnly: true
+                            example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTk5NTIxMDIsImV4cCI6MTY5OTk1MjcwMiwicm9sZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImFydGh1ci5waW50b0BleGFtcGxlLm5ldCJ9.Iz6lFDUQoeyZLxCNiCUPxwC_Qr3wTJ_XCpscposZ93yU0LiXO-MZNz5kzuVGJXC55BlHrhy3CMQGHLwrRMxulNVusWF25TKMMKCDAAU6jXGRqXGaVAjqaLv5EPVz4YOrwNvEYMaPybqK3JNGOYsK2D_oBXH7_G-VwIJ0N4ldoQHOn37ApKnH3sdzILmb3qsgZeq5KaDY4vJRmTp4t7F_AuwzNlw_VLwQQk26wjMK4Ev4EnVsmtqeFfkB2fSXsJ8HjuDuYh5BUMW1B_DL2lcbu75aNr_KLwCxjGQ7eELFoKAiCtCUOJakYJu_JxAKsf1qrzmeJmLvjbtQIPLV5HiiJQ
         paths:
             /api/check_cred:
                 post:
+                    tags:
+                        - LogIn
                     summary: Identification de l'utilisateur
                     requestBody:
-                        description: Connexion avec __email__ et __mot de passe__ pour obtenir le jeton d'authentification
+                        description: Connexion avec __email__ et __mot de passe__ pour obtenir un jeton d'authentification
                         required: true
                         content:
                             application/json:
@@ -37,7 +40,7 @@ nelmio_api_doc:
                                             default: password
                     responses:
                         '200':
-                            description: OK
+                            description: Obtention du **jeton d'authentification**
                             content:
                                 application/json:
                                     schema:

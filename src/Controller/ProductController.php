@@ -13,7 +13,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Attributes as OA;
 
 #[Route('api')]
@@ -37,7 +36,6 @@ class ProductController extends AbstractController
         schema: new OA\Schema(type: 'int', default: 1)
     )]
     #[OA\Tag(name: 'Products')]
-    #[Security(name: 'Bearer')]
     /**
      * Get all the products
      *
@@ -91,7 +89,6 @@ class ProductController extends AbstractController
         schema: new OA\Schema(type: 'int')
     )]
     #[OA\Tag(name: 'Products')]
-    #[Security(name: 'Bearer')]
     /**
      * Get a single product
      *
