@@ -14,7 +14,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *          "products",
  *      )
  * )
- * 
+ *
  * @Hateoas\Relation(
  *      name = "detail",
  *      href = @Hateoas\Route(
