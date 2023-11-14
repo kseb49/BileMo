@@ -5,6 +5,24 @@ namespace App\Entity;
 use App\Repository\ProductsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+/**
+ * @Hateoas\Relation(
+ *      name = "liste",
+ *      href = @Hateoas\Route(
+ *          "products",
+ *      )
+ * )
+ *
+ * @Hateoas\Relation(
+ *      name = "detail",
+ *      href = @Hateoas\Route(
+ *          "singleProduct",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      )
+ * )
+ */
 
 #[ORM\Entity(repositoryClass: ProductsRepository::class)]
 class Products

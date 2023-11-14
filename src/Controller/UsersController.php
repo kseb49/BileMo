@@ -5,19 +5,23 @@ namespace App\Controller;
 use TypeError;
 use App\Entity\Users;
 use App\Repository\UsersRepository;
+use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
+
 
 #[Route('api')]
 class UsersController extends AbstractController
@@ -25,6 +29,32 @@ class UsersController extends AbstractController
 
 
     #[Route('/users', name: 'app_users', methods:'GET')]
+    #[OA\Response(
+        response: 200,
+        description: 'Retourne la liste des utilisateurs',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Parameter(
+        name: 'page',
+        example:'?page=numeroPage',
+        in: 'query',
+        description: 'La page de résultat demandé',
+        schema: new OA\Schema(type: 'int', default: 1)
+    )]
+    #[OA\Tag(name: 'Users')]
     /**
      * Retrieve all the users linked to a client
      *
@@ -49,19 +79,50 @@ class UsersController extends AbstractController
         }
 
         $offset = ($page === 1) ? ($page -1) : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
-        $userList = $cache->get('users_'.$page, function(ItemInterface $item) use($offset, $users, $client)
+        $key = preg_replace('#@.#','',$client->getUserIdentifier()).'users_'.$page;
+        $userList = $cache->get($key, function(ItemInterface $item) use($offset, $users, $client)
         {
             $item->expiresAfter(10000);
-            $item->tag('users');
+            $item->tag('users'.preg_replace('#@.#','',$client->getUserIdentifier()));
             return $users->findByClientsWithPagination($client, $offset);
         });
-
-        return $this->json([$userList, 'page' => $page.'/'.$pages], context:['groups' => 'client_user']);
+        $context = SerializationContext::create()->setGroups(['client_user']);
+        return $this->json([$userList, 'page' => $page.'/'.$pages], context: $context);
 
     }
 
 
     #[Route('/users/{id}', name: 'app_user', methods:'GET')]
+    #[OA\Response(
+        response: 200,
+        description: "Retourne le détail de l'utilisateur",
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Response(
+        response: 400,
+        description: "Erreur dans la requête"
+        )
+    ]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        description: "L'identifiant de l'utilisateur",
+        schema: new OA\Schema(type: 'int')
+    )]
+    #[OA\Tag(name: 'Users')]
     /**
      * Retrieve a single user
      *
@@ -71,22 +132,57 @@ class UsersController extends AbstractController
     public function singleUser(UsersRepository $users, int $id, TagAwareCacheInterface $cache): JsonResponse
     {
         $client = $this->getUser();
-        $user = $cache->get('singleUser'.$id, function(ItemInterface $item) use($users, $id, $client)
+        $key = preg_replace('#@.#', '', $client->getUserIdentifier()).'singleUser'.$id;
+        $user = $cache->get($key, function(ItemInterface $item) use($users, $id, $client)
         {
-            $item->expiresAfter(1000);
-            $item->tag('users');
+            $item->expiresAfter(3600);
+            $item->tag('users'.$id);
             return $users->findOneBy(['id' => $id, 'clients' => $client]);
         });
         if ($user === null) {
-            return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
+            return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], status: 404);
         }
-        return $this->json($user, context:['groups' => 'client_user']);
+        $context = SerializationContext::create()->setGroups(['client_user']);
+        return $this->json($user, context:$context);
 
     }
 
 
     #[Route('/users', name:'create_user', methods:'POST')]
     #[IsGranted('ROLE_ADMIN', message:"Vous n'avez pas les droits suffisants pour effectuer cet action", statusCode:403)]
+    #[OA\Response(
+        response: 201,
+        description: "Retourne l'utilisateur créé",
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Response(
+        response: 403,
+        description: "Droits insuffisants pour effectuer cet action"
+        )
+    ]
+    #[OA\Response(
+        response: 400,
+        description: "Erreur dans la requête / body"
+        )
+    ]
+    #[OA\RequestBody(
+        required:true,
+        description:"Les informations de l'utilisateur que l'on souhaite crééer",
+    )]
+    #[OA\Tag(name: 'Users')]
     /**
      * Create an user
      *
@@ -98,6 +194,7 @@ class UsersController extends AbstractController
      */
     public function createUser(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, SerializerInterface $serializer, TagAwareCacheInterface $cache) :JsonResponse
     {
+        $client = $this->getUser();
         $user = $serializer->deserialize($request->getContent(), Users::class, 'json');
         $errors = $validator->validate($user);
         if (count($errors) > 0) {
@@ -117,14 +214,46 @@ class UsersController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
         // Empty the cache.
-        $cache->invalidateTags(['users']);
-        return $this->json([$user], 201, context:['groups' => 'client_user']);
+        $cache->invalidateTags(['users'.preg_replace('#@.#','',$client->getUserIdentifier())]);
+        $context = SerializationContext::create()->setGroups(['client_user']);
+        return $this->json([$user], status: 201, context:$context);
 
     }
 
 
     #[Route('/users/{id}', name:'delete_user', methods:'DELETE')]
     #[IsGranted('ROLE_ADMIN', message:"Vous n'avez pas les droits suffisants pour effectuer cet action", statusCode:403)]
+    #[OA\Response(
+        response: 204,
+        description:"L'utilisateur a était supprimé"
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Response(
+        response: 403,
+        description: "Droits insuffisants pour effectuer cet action"
+        )
+    ]
+    #[OA\Response(
+        response: 400,
+        description: "Erreur dans la requête"
+        )
+    ]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        description: "L'identifiant de l'utilisateur à supprimer",
+        schema: new OA\Schema(type: 'int')
+    )]
+    #[OA\Tag(name: 'Users')]
     /**
      * Delete an user
      *
@@ -138,12 +267,12 @@ class UsersController extends AbstractController
         $client = $this->getUser();
         $user = $users->findOneBy(['id' => $id,'clients' => $client]);
         if ($user === null) {
-            return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], 404);
+            return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], status: 404);
         }
         $entityManager->remove($user);
         $entityManager->flush();
         // Empty the cache.
-        $cache->invalidateTags(['users']);
+        $cache->invalidateTags(['users'.$id]);
         return new Response(status: 204);
 
     }
