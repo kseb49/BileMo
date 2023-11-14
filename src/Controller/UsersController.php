@@ -37,6 +37,16 @@ class UsersController extends AbstractController
             items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
         )
     )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
     #[OA\Parameter(
         name: 'page',
         example:'?page=numeroPage',
@@ -91,6 +101,21 @@ class UsersController extends AbstractController
             items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
         )
     )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Response(
+        response: 400,
+        description: "Erreur dans la requête"
+        )
+    ]
     #[OA\Parameter(
         name: 'id',
         in: 'path',
@@ -133,13 +158,29 @@ class UsersController extends AbstractController
             items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
         )
     )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Response(
+        response: 403,
+        description: "Droits insuffisants pour effectuer cet action"
+        )
+    ]
+    #[OA\Response(
+        response: 400,
+        description: "Erreur dans la requête / body"
+        )
+    ]
     #[OA\RequestBody(
         required:true,
         description:"Les informations de l'utilisateur que l'on souhaite crééer",
-        content: new OA\JsonContent(
-            type:'array',
-            items: new OA\Items(ref:new Model(type:Users::class, groups:['client_user'])),
-        )
     )]
     #[OA\Tag(name: 'Users')]
     /**
@@ -186,6 +227,26 @@ class UsersController extends AbstractController
         response: 204,
         description:"L'utilisateur a était supprimé"
     )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Response(
+        response: 403,
+        description: "Droits insuffisants pour effectuer cet action"
+        )
+    ]
+    #[OA\Response(
+        response: 400,
+        description: "Erreur dans la requête"
+        )
+    ]
     #[OA\Parameter(
         name: 'id',
         in: 'path',

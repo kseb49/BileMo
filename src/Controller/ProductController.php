@@ -23,11 +23,17 @@ class ProductController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Retourne la liste des produits de la page demandée',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Products::class))
-        )
     )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
     #[OA\Parameter(
         name: 'page',
         example:'?page=numeroPage',
@@ -81,6 +87,16 @@ class ProductController extends AbstractController
             items: new OA\Items(ref: new Model(type: Products::class))
         )
     )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
     #[OA\Parameter(
         name: 'id',
         in: 'path',

@@ -18,12 +18,24 @@ nelmio_api_doc:
                             type: string
                             readOnly: true
                             example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTk5NTIxMDIsImV4cCI6MTY5OTk1MjcwMiwicm9sZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImFydGh1ci5waW50b0BleGFtcGxlLm5ldCJ9.Iz6lFDUQoeyZLxCNiCUPxwC_Qr3wTJ_XCpscposZ93yU0LiXO-MZNz5kzuVGJXC55BlHrhy3CMQGHLwrRMxulNVusWF25TKMMKCDAAU6jXGRqXGaVAjqaLv5EPVz4YOrwNvEYMaPybqK3JNGOYsK2D_oBXH7_G-VwIJ0N4ldoQHOn37ApKnH3sdzILmb3qsgZeq5KaDY4vJRmTp4t7F_AuwzNlw_VLwQQk26wjMK4Ev4EnVsmtqeFfkB2fSXsJ8HjuDuYh5BUMW1B_DL2lcbu75aNr_KLwCxjGQ7eELFoKAiCtCUOJakYJu_JxAKsf1qrzmeJmLvjbtQIPLV5HiiJQ
+                Users:
+                    type: object
+                    properties:
+                        firstname:
+                            type: string
+                            example: firstname
+                        lastname: 
+                            type: string
+                            example: lastname
+                        email:
+                            type: string
+                            example: user@email.com
         paths:
             /api/check_cred:
                 post:
                     tags:
                         - LogIn
-                    summary: Identification de l'utilisateur
+                    summary: Identification de l'utilisateur via JWT
                     requestBody:
                         description: Connexion avec __email__ et __mot de passe__ pour obtenir un jeton d'authentification
                         required: true
@@ -45,6 +57,17 @@ nelmio_api_doc:
                                 application/json:
                                     schema:
                                         $ref: '#/components/schemas/Token'
+                        '401':
+                            description: Mauvais identifiant ou mot de passe
+            /api/users:
+                post:
+                    requestBody:
+                        required: true
+                        description: Les informations de l'utilisateur que l'on souhaite crééer
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: '#/components/schemas/Users'
         security:
             - bearerAuth: []
     areas: # to filter documented areas
