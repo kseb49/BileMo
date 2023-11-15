@@ -87,6 +87,42 @@ class UsersController extends AbstractController
 
     #[Route('/users', name:'create_user', methods:'POST')]
     #[IsGranted('ROLE_ADMIN', message:"Vous n'avez pas les droits suffisants pour effectuer cet action", statusCode:403)]
+<<<<<<< Updated upstream
+=======
+    #[OA\Response(
+        response: 201,
+        description: "Retourne l'utilisateur créé",
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Users::class, groups:['client_user']))
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'NOT FOUND',
+        )
+    ]
+    #[OA\Response(
+        response: 401,
+        description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Response(
+        response: 403,
+        description: "Droits insuffisants pour effectuer cet action"
+        )
+    ]
+    #[OA\Response(
+        response: 400,
+        description: "Erreur dans la requête / body"
+        )
+    ]
+    #[OA\RequestBody(
+        required:true,
+        description:"Les informations de l'utilisateur que l'on souhaite crééer",
+    )]
+    #[OA\Tag(name: 'Request_body')]
+>>>>>>> Stashed changes
     /**
      * Create an user
      *
