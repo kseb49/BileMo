@@ -150,11 +150,6 @@ class UsersController extends AbstractController
 
     #[Route('/users', name:'create_user', methods:'POST')]
     #[IsGranted('ROLE_ADMIN', message:"Vous n'avez pas les droits suffisants pour effectuer cet action", statusCode:403)]
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> level3
     #[OA\Response(
         response: 201,
         description: "Retourne l'utilisateur créé",
@@ -188,10 +183,6 @@ class UsersController extends AbstractController
         description:"Les informations de l'utilisateur que l'on souhaite crééer",
     )]
     #[OA\Tag(name: 'Request_body')]
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> level3
     /**
      * Create an user
      *
