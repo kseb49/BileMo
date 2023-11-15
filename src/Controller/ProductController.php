@@ -36,7 +36,7 @@ class ProductController extends AbstractController
     ]
     #[OA\Parameter(
         name: 'page',
-        example:'?page=numeroPage',
+        example:'?page=2',
         in: 'query',
         description: 'La page de résultat demandé',
         schema: new OA\Schema(type: 'int', default: 1)

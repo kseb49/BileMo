@@ -10,7 +10,9 @@ Réalisé dans le cadre de la formation _développeur d'application PHP/symfony_
 ## Description
 **BileMo** est une entreprise offrant toute une sélection de téléphones mobiles haut de gamme en B2B.
 Une API REST fournie à toutes les plateformes qui le souhaitent l’accès au catalogue.
+
 Les clients de l’API sont authentifiés via JWT.
+
 
 ## Prè-requis
 
@@ -33,7 +35,7 @@ Installer les dépendances
 
  ```composer install```
 
- Configurer un fichier _.env.local_:
+_Variables d'environnements_ : Configurer un fichier _.env.local_:
  ```Dotenv
 DATABASE_URL="mysql://app:!ChangeMe!@127.0.0.1:3306/app?serverVersion=8.0.32&charset=utf8mb4"
 ```
@@ -69,6 +71,18 @@ Charger les données initiales
 Lancer le serveur symfony
 
 `symfony server:start`
+## Rôles
+Les endpoints suivants nécessitent un rôle administrateur :
+
+<span style="color: #2ecc71">POST</span>
+`/api/users`
+
+<span style="color: #e74c3c">DELETE</span>
+`/api/users/{{id}}`
+
+
+Les [données initiales](https://github.com/kseb49/BileMo#installation) octroient ce rôle à un client sur deux.
+
 ## Documentation
 
 La documentation est disponible au lien suivant :

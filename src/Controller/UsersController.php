@@ -49,7 +49,7 @@ class UsersController extends AbstractController
     ]
     #[OA\Parameter(
         name: 'page',
-        example:'?page=numeroPage',
+        example:'?page=2',
         in: 'query',
         description: 'La page de résultat demandé',
         schema: new OA\Schema(type: 'int', default: 1)
@@ -182,7 +182,7 @@ class UsersController extends AbstractController
         required:true,
         description:"Les informations de l'utilisateur que l'on souhaite crééer",
     )]
-    #[OA\Tag(name: 'Users')]
+    #[OA\Tag(name: 'Request_body')]
     /**
      * Create an user
      *
