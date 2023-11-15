@@ -49,7 +49,7 @@ class UsersController extends AbstractController
     ]
     #[OA\Parameter(
         name: 'page',
-        example:'?page=2',
+        example:'2',
         in: 'query',
         description: 'La page de résultat demandé',
         schema: new OA\Schema(type: 'int', default: 1)
@@ -116,12 +116,6 @@ class UsersController extends AbstractController
         description: "Erreur dans la requête"
         )
     ]
-    #[OA\Parameter(
-        name: 'id',
-        in: 'path',
-        description: "L'identifiant de l'utilisateur",
-        schema: new OA\Schema(type: 'int')
-    )]
     #[OA\Tag(name: 'Users')]
     /**
      * Retrieve a single user
@@ -247,12 +241,12 @@ class UsersController extends AbstractController
         description: "Erreur dans la requête"
         )
     ]
-    #[OA\Parameter(
-        name: 'id',
-        in: 'path',
-        description: "L'identifiant de l'utilisateur à supprimer",
-        schema: new OA\Schema(type: 'int')
-    )]
+    // #[OA\Parameter(
+    //     name: 'id',
+    //     in: 'path',
+    //     description: "L'identifiant de l'utilisateur à supprimer",
+    //     schema: new OA\Schema(type: 'int')
+    // )]
     #[OA\Tag(name: 'Users')]
     /**
      * Delete an user
@@ -272,7 +266,7 @@ class UsersController extends AbstractController
         $entityManager->remove($user);
         $entityManager->flush();
         // Empty the cache.
-        $cache->invalidateTags(['users'.$id]);
+        $cache->invalidateTags(['users'.$id, 'users'.preg_replace('#@.#','',$client->getUserIdentifier())]);
         return new Response(status: 204);
 
     }

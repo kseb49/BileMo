@@ -6,8 +6,10 @@ nelmio_api_doc:
             version: "0.1"
         components:
             securitySchemes:
-                bearerAuth:            # arbitrary name for the security scheme
+                bearerAuth:    
+                    name: Authorization        # arbitrary name for the security scheme
                     type: apiKey
+                    in: header
                     scheme: bearer
                     bearerFormat: JWT    # optional, arbitrary value for documentation purposes
             schemas:
@@ -16,8 +18,7 @@ nelmio_api_doc:
                     properties:
                         token:
                             type: string
-                            readOnly: true
-                            example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTk5NTIxMDIsImV4cCI6MTY5OTk1MjcwMiwicm9sZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImFydGh1ci5waW50b0BleGFtcGxlLm5ldCJ9.Iz6lFDUQoeyZLxCNiCUPxwC_Qr3wTJ_XCpscposZ93yU0LiXO-MZNz5kzuVGJXC55BlHrhy3CMQGHLwrRMxulNVusWF25TKMMKCDAAU6jXGRqXGaVAjqaLv5EPVz4YOrwNvEYMaPybqK3JNGOYsK2D_oBXH7_G-VwIJ0N4ldoQHOn37ApKnH3sdzILmb3qsgZeq5KaDY4vJRmTp4t7F_AuwzNlw_VLwQQk26wjMK4Ev4EnVsmtqeFfkB2fSXsJ8HjuDuYh5BUMW1B_DL2lcbu75aNr_KLwCxjGQ7eELFoKAiCtCUOJakYJu_JxAKsf1qrzmeJmLvjbtQIPLV5HiiJQ
+                            # example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTk5NTIxMDIsImV4cCI6MTY5OTk1MjcwMiwicm9sZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImFydGh1ci5waW50b0BleGFtcGxlLm5ldCJ9.Iz6lFDUQoeyZLxCNiCUPxwC_Qr3wTJ_XCpscposZ93yU0LiXO-MZNz5kzuVGJXC55BlHrhy3CMQGHLwrRMxulNVusWF25TKMMKCDAAU6jXGRqXGaVAjqaLv5EPVz4YOrwNvEYMaPybqK3JNGOYsK2D_oBXH7_G-VwIJ0N4ldoQHOn37ApKnH3sdzILmb3qsgZeq5KaDY4vJRmTp4t7F_AuwzNlw_VLwQQk26wjMK4Ev4EnVsmtqeFfkB2fSXsJ8HjuDuYh5BUMW1B_DL2lcbu75aNr_KLwCxjGQ7eELFoKAiCtCUOJakYJu_JxAKsf1qrzmeJmLvjbtQIPLV5HiiJQ
                 Request_body:
                     type: object
                     properties:
@@ -68,6 +69,29 @@ nelmio_api_doc:
                             application/json:
                                 schema:
                                     $ref: '#/components/schemas/Request_body'
+            /api/users/{id}:
+                get:
+                    parameters:
+                        - in: path
+                          name: id
+                          required: true
+                          schema:
+                            type: integer
+                delete:
+                    parameters:
+                        - in: path
+                          name: id
+                          required: true
+                          schema:
+                            type: integer
+            /api/products/{id}:
+                get:
+                    parameters:
+                        - in: path
+                          name: id
+                          required: true
+                          schema:
+                            type: integer
         security:
             - bearerAuth: []
     areas: # to filter documented areas

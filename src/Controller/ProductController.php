@@ -36,7 +36,7 @@ class ProductController extends AbstractController
     ]
     #[OA\Parameter(
         name: 'page',
-        example:'?page=2',
+        example:'1',
         in: 'query',
         description: 'La page de résultat demandé',
         schema: new OA\Schema(type: 'int', default: 1)
@@ -97,13 +97,13 @@ class ProductController extends AbstractController
         description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
         )
     ]
-    #[OA\Parameter(
-        name: 'id',
-        in: 'path',
-        required:true,
-        description: "L'identifiant du produit",
-        schema: new OA\Schema(type: 'int')
-    )]
+    // #[OA\Parameter(
+    //     name: 'id',
+    //     in: 'path',
+    //     required:true,
+    //     description: "L'identifiant du produit",
+    //     schema: new OA\Schema(type: 'int')
+    // )]
     #[OA\Tag(name: 'Products')]
     /**
      * Get a single product
