@@ -90,7 +90,7 @@ class UsersController extends AbstractController
         $key = preg_replace('#@.#','',$client->getUserIdentifier()).'users_'.$page.$limit;
         $userList = $cache->get($key, function(ItemInterface $item) use($offset, $users, $client, $limit)
         {
-            $item->expiresAfter(10000);
+            $item->expiresAfter(3600);
             $item->tag('users'.preg_replace('#@.#','',$client->getUserIdentifier()));
             return $users->findByClientsWithPagination($client, $offset, $limit);
         });
