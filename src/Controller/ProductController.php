@@ -97,13 +97,6 @@ class ProductController extends AbstractController
         description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
         )
     ]
-    // #[OA\Parameter(
-    //     name: 'id',
-    //     in: 'path',
-    //     required:true,
-    //     description: "L'identifiant du produit",
-    //     schema: new OA\Schema(type: 'int')
-    // )]
     #[OA\Tag(name: 'Products')]
     /**
      * Get a single product

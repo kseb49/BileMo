@@ -241,12 +241,6 @@ class UsersController extends AbstractController
         description: "Erreur dans la requête"
         )
     ]
-    // #[OA\Parameter(
-    //     name: 'id',
-    //     in: 'path',
-    //     description: "L'identifiant de l'utilisateur à supprimer",
-    //     schema: new OA\Schema(type: 'int')
-    // )]
     #[OA\Tag(name: 'Users')]
     /**
      * Delete an user

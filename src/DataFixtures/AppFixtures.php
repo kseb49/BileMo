@@ -28,14 +28,15 @@ class AppFixtures extends Fixture
     {
 
         $faker = Factory::create('fr_FR');
-        for ($i=0; $i < 15; $i++) {
+        for ($i =0; $i < 15; $i++) {
             $client = new Clients();
             $client->setEmail($faker->safeEmail())
-            ->setPassword($this->passwordHasher->hashPassword($client, '123456'));
+                ->setPassword($this->passwordHasher->hashPassword($client, '123456'));
             // One in two has the ROLE_ADMIN.
-            if($i % 2 === 1) {
+            if (($i % 2) === 1) {
                 $client->setRoles(['ROLE_ADMIN']);
             }
+
             $manager->persist($client);
         }
 

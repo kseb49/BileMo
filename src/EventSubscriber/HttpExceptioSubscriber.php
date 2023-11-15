@@ -24,10 +24,11 @@ class HttpExceptioSubscriber implements EventSubscriberInterface
         $exception = $event->getThrowable();
         if ($exception instanceof HttpException) {
             $responseBody
-            = [
+            =
+            [
                 "status" => $exception->getStatusCode(),
                 "message" => $exception->getMessage(),
-              ];
+            ];
             $event->setResponse(new JsonResponse($responseBody));
             return;
         }

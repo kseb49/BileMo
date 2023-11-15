@@ -19,7 +19,7 @@ class ProductsCreateFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $brands
-        = 
+        =
         [
             "samsung",
             "sony",
@@ -30,15 +30,15 @@ class ProductsCreateFixtures extends Fixture
             "huawei",
             "lg",
         ];
-        
+
         $faker = Factory::create('fr_FR');
         for ($i =0; $i < 100; $i++) {
             $product = new Products();
             $product->setName($faker->word())
-            ->setBrand($faker->randomElement($brands))
-            ->setStock($faker->randomNumber(2, false))
-            ->setDescription($faker->paragraphs(4, true))
-            ->setPrice($faker->numberBetween(500, 1500));
+                ->setBrand($faker->randomElement($brands))
+                ->setStock($faker->randomNumber(2, false))
+                ->setDescription($faker->paragraphs(4, true))
+                ->setPrice($faker->numberBetween(500, 1500));
             $manager->persist($product);
         }
 

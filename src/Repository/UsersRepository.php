@@ -26,22 +26,31 @@ class UsersRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Users::class);
+
     }
 
-   /**
+
+    /**
     * @return Users[] Returns an array of Users objects
     */
-   public function findByClients(Clients $client): array
-   {
-       return $this->createQueryBuilder('u')
+    public function findByClients(Clients $client): array
+    {
+        return $this->createQueryBuilder('u')
            ->andWhere('u.clients = :val')
            ->setParameter('val', $client)
            ->getQuery()
            ->getResult()
        ;
-   }
+    }
 
 
+   /**
+    * Get a result page
+    *
+    * @param Clients $client The client
+    * @param integer $offset The offset to start with
+    * @return array
+    */
    public function findByClientsWithPagination(Clients $client, int $offset = 0): array
    {
        return $this->createQueryBuilder('u')
@@ -55,13 +64,5 @@ class UsersRepository extends ServiceEntityRepository
        ;
    }
 
-//    public function findOneBySomeField($value): ?Users
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+
 }

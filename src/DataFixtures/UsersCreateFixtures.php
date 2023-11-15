@@ -29,13 +29,14 @@ class UsersCreateFixtures extends Fixture
             $client = $manager->getRepository(Clients::class)->findOneById($faker->randomElement($ids));
             $user = new Users();
             $user->setFirstname($faker->firstName())
-            ->setLastname($faker->lastName())
-            ->setEmail($faker->safeEmail())
-            ->setClients($client);
+                ->setLastname($faker->lastName())
+                ->setEmail($faker->safeEmail())
+                ->setClients($client);
             $manager->persist($user);
         }
 
         $manager->flush();
+
     }
 
 
