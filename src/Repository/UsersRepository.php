@@ -51,13 +51,13 @@ class UsersRepository extends ServiceEntityRepository
     * @param integer $offset The offset to start with
     * @return array
     */
-   public function findByClientsWithPagination(Clients $client, int $offset = 0): array
+   public function findByClientsWithPagination(Clients $client, int $offset = 0, int $limit =3): array
    {
        return $this->createQueryBuilder('u')
            ->andWhere('u.clients = :val')
            ->setParameter('val', $client)
            ->orderBy('u.id', 'ASC')
-           ->setMaxResults(self::RESULT_PER_PAGE)
+           ->setMaxResults($limit)
            ->setFirstResult($offset)
            ->getQuery()
            ->getResult()
