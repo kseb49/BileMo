@@ -19,18 +19,18 @@ nelmio_api_doc:
                         token:
                             type: string
                             # example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTk5NTIxMDIsImV4cCI6MTY5OTk1MjcwMiwicm9sZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJ1c2VybmFtZSI6ImFydGh1ci5waW50b0BleGFtcGxlLm5ldCJ9.Iz6lFDUQoeyZLxCNiCUPxwC_Qr3wTJ_XCpscposZ93yU0LiXO-MZNz5kzuVGJXC55BlHrhy3CMQGHLwrRMxulNVusWF25TKMMKCDAAU6jXGRqXGaVAjqaLv5EPVz4YOrwNvEYMaPybqK3JNGOYsK2D_oBXH7_G-VwIJ0N4ldoQHOn37ApKnH3sdzILmb3qsgZeq5KaDY4vJRmTp4t7F_AuwzNlw_VLwQQk26wjMK4Ev4EnVsmtqeFfkB2fSXsJ8HjuDuYh5BUMW1B_DL2lcbu75aNr_KLwCxjGQ7eELFoKAiCtCUOJakYJu_JxAKsf1qrzmeJmLvjbtQIPLV5HiiJQ
-                Request_body:
-                    type: object
-                    properties:
-                        firstname:
-                            type: string
-                            example: firstname
-                        lastname: 
-                            type: string
-                            example: lastname
-                        email:
-                            type: string
-                            example: user@email.com
+                # Request_body:
+                    # type: object
+                    # properties:
+                    #     firstname:
+                    #         type: string
+                    #         example: firstname
+                    #     lastname: 
+                    #         type: string
+                    #         example: lastname
+                    #     email:
+                    #         type: string
+                    #         example: user@email.com
         paths:
             /api/check_cred:
                 post:
@@ -71,7 +71,18 @@ nelmio_api_doc:
                         content:
                             application/json:
                                 schema:
-                                    $ref: '#/components/schemas/Request_body'
+                                    # 
+                                    type: object
+                                    properties:
+                                        firstname:
+                                            type: string
+                                            example: firstname
+                                        lastname: 
+                                            type: string
+                                            example: lastname
+                                        email:
+                                            type: string
+                                            example: user@email.com
             /api/users/{id}:
                 get:
                     parameters:
