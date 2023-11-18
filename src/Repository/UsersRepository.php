@@ -31,37 +31,37 @@ class UsersRepository extends ServiceEntityRepository
 
 
     /**
-    * @return Users[] Returns an array of Users objects
-    */
+     * @return Users[] Returns an array of Users objects
+     */
     public function findByClients(Clients $client): array
     {
         return $this->createQueryBuilder('u')
-           ->andWhere('u.clients = :val')
-           ->setParameter('val', $client)
-           ->getQuery()
-           ->getResult()
-       ;
+            ->andWhere('u.clients = :val')
+            ->setParameter('val', $client)
+            ->getQuery()
+            ->getResult();
+
     }
 
 
-   /**
-    * Get a result page
-    *
-    * @param Clients $client The client
-    * @param integer $offset The offset to start with
-    * @return array
-    */
+    /**
+     * Get a result page
+     *
+     * @param Clients $client The client
+     * @param integer $offset The offset to start with
+     * @return array
+     */
    public function findByClientsWithPagination(Clients $client, int $offset = 0, int $limit =3): array
    {
-       return $this->createQueryBuilder('u')
-           ->andWhere('u.clients = :val')
-           ->setParameter('val', $client)
-           ->orderBy('u.id', 'ASC')
-           ->setMaxResults($limit)
-           ->setFirstResult($offset)
-           ->getQuery()
-           ->getResult()
-       ;
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.clients = :val')
+            ->setParameter('val', $client)
+            ->orderBy('u.id', 'ASC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+
    }
 
 

@@ -25,6 +25,7 @@ class ProductsRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Products::class);
+
     }
 
 
@@ -34,15 +35,14 @@ class ProductsRepository extends ServiceEntityRepository
      * @param integer $offset The offset to start whith
      * @return array
      */
-    public function findWithPagination(int $offset = 0, int $limit = 15): array
+    public function findWithPagination(int $offset= 0, int $limit = 15): array
     {
         return $this->createQueryBuilder('p')
             ->orderBy('p.id', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
 
 

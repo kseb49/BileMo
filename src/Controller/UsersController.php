@@ -68,7 +68,7 @@ class UsersController extends AbstractController
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function usersList(UsersRepository $users, TagAwareCacheInterface $cache, #[MapQueryParameter] int $page= 0, #[MapQueryParameter] int $limit= 3): JsonResponse
+    public function usersList(UsersRepository $users, TagAwareCacheInterface $cache, #[MapQueryParameter] int $page=0, #[MapQueryParameter] int $limit= 3): JsonResponse
     {
         $client = $this->getUser();
         if (gmp_sign($page) === -1 || gmp_sign($limit) === -1) {
@@ -86,14 +86,15 @@ class UsersController extends AbstractController
             throw new HttpException(404, "Cette page n'existe pas");
         }
 
-        $offset = ($page === 1) ? ($page -1) : ($page*$limit)-$limit;
+        $offset = ($page === 1) ? ($page -1) : (($page*$limit)- $limit);
         $key = preg_replace('#@.#','',$client->getUserIdentifier()).'users_'.$page.$limit;
-        $userList = $cache->get($key, function(ItemInterface $item) use($offset, $users, $client, $limit)
+        $userList = $cache->get($key, function (ItemInterface $item) use ($offset, $users, $client, $limit)
         {
             $item->expiresAfter(3600);
             $item->tag('users'.preg_replace('#@.#','',$client->getUserIdentifier()));
             return $users->findByClientsWithPagination($client, $offset, $limit);
-        });
+        }
+        );
         $context = SerializationContext::create()->setGroups(['client_user']);
         return $this->json([$userList, 'page' => $page.'/'.$pages], context: $context);
 
@@ -135,7 +136,7 @@ class UsersController extends AbstractController
     {
         $client = $this->getUser();
         $key = preg_replace('#@.#', '', $client->getUserIdentifier()).'singleUser'.$id;
-        $user = $cache->get($key, function(ItemInterface $item) use($users, $id, $client)
+        $user = $cache->get($key, function (ItemInterface $item) use ($users, $id, $client)
         {
             $item->expiresAfter(3600);
             $item->tag('users'.$id);
@@ -261,7 +262,7 @@ class UsersController extends AbstractController
     public function deleteUser(int $id, UsersRepository $users, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache) :JsonResponse | Response
     {
         $client = $this->getUser();
-        $user = $users->findOneBy(['id' => $id,'clients' => $client]);
+        $user = $users->findOneBy(['id' => $id, 'clients' => $client]);
         if ($user === null) {
             return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], status: 404);
         }

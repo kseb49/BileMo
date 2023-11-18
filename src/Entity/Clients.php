@@ -14,6 +14,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ORM\Entity(repositoryClass: ClientsRepository::class)]
 class Clients implements UserInterface, PasswordAuthenticatedUserInterface
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -46,9 +47,11 @@ class Clients implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'clients', targetEntity: Users::class, orphanRemoval: true)]
     private Collection $users;
 
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+
     }
 
 
@@ -88,7 +91,7 @@ class Clients implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
+        // Guarantee every user at least has ROLE_USER.
         $roles[] = 'ROLE_USER';
         return array_unique($roles);
     }
@@ -150,10 +153,11 @@ class Clients implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeUser(users $user): static
     {
         if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
+            // Set the owning side to null (unless already changed).
             if ($user->getClients() === $this) {
                 $user->setClients(null);
             }
+
         }
         return $this;
 

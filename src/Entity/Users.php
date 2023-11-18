@@ -15,7 +15,7 @@ use JMS\Serializer\Annotation\Groups;
  *      ),
  * exclusion = @Hateoas\Exclusion(groups="client_user")
  * )
- * 
+ *
  * @Hateoas\Relation(
  *      name = "detail",
  *      href = @Hateoas\Route(
@@ -94,6 +94,7 @@ class Users
     public function getId(): ?int
     {
         return $this->id;
+
     }
 
 

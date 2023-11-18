@@ -10,6 +10,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 class ProductsCreateFixtures extends Fixture
 {
 
+
     /**
      * Create 100 products
      *
@@ -19,8 +20,7 @@ class ProductsCreateFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $brands
-        =
-        [
+        = [
             "samsung",
             "sony",
             "apple",
@@ -32,7 +32,7 @@ class ProductsCreateFixtures extends Fixture
         ];
 
         $faker = Factory::create('fr_FR');
-        for ($i =0; $i < 100; $i++) {
+        for ($i= 0; $i < 100; $i++) {
             $product = new Products();
             $product->setName($faker->word())
                 ->setBrand($faker->randomElement($brands))

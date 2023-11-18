@@ -19,6 +19,7 @@ use OpenApi\Attributes as OA;
 class ProductController extends AbstractController
 {
 
+
     #[Route('/products', name: 'products', methods:['GET'])]
     #[OA\Response(
         response: 200,
@@ -57,7 +58,7 @@ class ProductController extends AbstractController
      * @param ProductsRepository $productsRepo
      * @return JsonResponse
      */
-    public function productsList(ProductsRepository $productsRepo, CacheInterface $cache, #[MapQueryParameter] int $page= 0, #[MapQueryParameter] int $limit= 15): JsonResponse
+    public function productsList(ProductsRepository $productsRepo, CacheInterface $cache, #[MapQueryParameter] int $page=0, #[MapQueryParameter] int $limit=15): JsonResponse
     {
 
         if (gmp_sign($page) === -1 || gmp_sign($limit) === -1) {
@@ -73,9 +74,9 @@ class ProductController extends AbstractController
         if ($page > $pages) {
             throw new HttpException(404, "Cette page n'existe pas");
         }
-        $offset = ($page === 1) ? ($page -1) : ($page*$limit)-$limit;
+        $offset = ($page === 1) ? ($page -1) : (($page*$limit)- $limit);
         // $products = $this->caches->cache($offset, Products::class, 'products_list_'.$page);
-        $products = $cache->get('products_list_'.$page.$limit, function(ItemInterface $item) use ($productsRepo, $offset, $limit)
+        $products = $cache->get('products_list_'.$page.$limit, function (ItemInterface $item) use ($productsRepo, $offset, $limit)
             {
                 $item->expiresAfter(3600);
                 return $productsRepo->findWithPagination($offset, $limit);
@@ -121,9 +122,8 @@ class ProductController extends AbstractController
             $item->expiresAfter(3600);
             return $productsRepo->findOneById($id);
         }
-        
         );
-        if($product === null) {
+        if ($product === null) {
             throw new HttpException(404, "Ce produit n'existe pas");
         }
 

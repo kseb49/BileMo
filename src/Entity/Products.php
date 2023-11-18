@@ -27,6 +27,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
 #[ORM\Entity(repositoryClass: ProductsRepository::class)]
 class Products
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -76,9 +77,11 @@ class Products
     #[Assert\Type('integer')]
     private ?int $price = null;
 
+
     public function getId(): ?int
     {
         return $this->id;
+
     }
 
 
