@@ -64,6 +64,7 @@ class ProductController extends AbstractController
         if (gmp_sign($page) === -1 || gmp_sign($limit) === -1) {
             throw new TypeError("Le numéro de page/limit ne peut être négatif", 404);
         }
+
         // Considering the "0" value means the first page.
         $page = $page === 0 ? 1 : $page;
         $limit = $limit === 0 ? 15 : $limit;
@@ -74,7 +75,7 @@ class ProductController extends AbstractController
         if ($page > $pages) {
             throw new HttpException(404, "Cette page n'existe pas");
         }
-        $offset = ($page === 1) ? ($page -1) : (($page*$limit)- $limit);
+        $offset = ($page === 1) ? ($page - 1) : (($page*$limit)- $limit);
         // $products = $this->caches->cache($offset, Products::class, 'products_list_'.$page);
         $products = $cache->get('products_list_'.$page.$limit, function (ItemInterface $item) use ($productsRepo, $offset, $limit)
             {
@@ -104,6 +105,11 @@ class ProductController extends AbstractController
     #[OA\Response(
         response: 401,
         description: 'UNAUTHORIZED - Jeton JWT expiré, invalide ou non fournit.',
+        )
+    ]
+    #[OA\Response(
+        response: 400,
+        description: "Erreur dans la requête"
         )
     ]
     #[OA\Tag(name: 'Products')]
