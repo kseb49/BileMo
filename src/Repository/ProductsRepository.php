@@ -34,11 +34,11 @@ class ProductsRepository extends ServiceEntityRepository
      * @param integer $offset The offset to start whith
      * @return array
      */
-    public function findWithPagination(int $offset = 0): array
+    public function findWithPagination(int $offset = 0, int $limit = 15): array
     {
         return $this->createQueryBuilder('p')
             ->orderBy('p.id', 'DESC')
-            ->setMaxResults(self::RESULT_PER_PAGE)
+            ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()
             ->getResult()

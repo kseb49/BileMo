@@ -54,6 +54,13 @@ class UsersController extends AbstractController
         description: 'La page de résultat demandé',
         schema: new OA\Schema(type: 'int', default: 1)
     )]
+    #[OA\Parameter(
+        name: 'limit',
+        example:'2',
+        in: 'query',
+        description: 'Le nombre de résultats souhaités par page',
+        schema: new OA\Schema(type: 'int', default: 3)
+    )]
     #[OA\Tag(name: 'Users')]
     /**
      * Retrieve all the users linked to a client
@@ -61,30 +68,31 @@ class UsersController extends AbstractController
      * @param UsersRepository $users
      * @return JsonResponse
      */
-    public function usersList(UsersRepository $users, TagAwareCacheInterface $cache, #[MapQueryParameter] int $page= 0): JsonResponse
+    public function usersList(UsersRepository $users, TagAwareCacheInterface $cache, #[MapQueryParameter] int $page= 0, #[MapQueryParameter] int $limit= 3): JsonResponse
     {
         $client = $this->getUser();
-        if (gmp_sign($page) === -1) {
-            throw new TypeError("Le numéro de page ne peut être négatif", 404);
+        if (gmp_sign($page) === -1 || gmp_sign($limit) === -1) {
+            throw new TypeError("Le numéro de page/limit ne peut être négatif", 404);
         }
 
         // Considering the "0" value means the first page.
         $page = $page === 0 ? 1 : $page;
+        $limit = $limit === 0 ? 3 : $limit;
 
         // Retrieve the numbers of pages available.
-        $pages = (int)(ceil(count($users->findByClients($client)) / $users::RESULT_PER_PAGE));
+        $pages = (int)(ceil(count($users->findByClients($client)) / $limit));
 
         if ($page > $pages) {
             throw new HttpException(404, "Cette page n'existe pas");
         }
 
-        $offset = ($page === 1) ? ($page -1) : ($page*$users::RESULT_PER_PAGE)-$users::RESULT_PER_PAGE;
-        $key = preg_replace('#@.#','',$client->getUserIdentifier()).'users_'.$page;
-        $userList = $cache->get($key, function(ItemInterface $item) use($offset, $users, $client)
+        $offset = ($page === 1) ? ($page -1) : ($page*$limit)-$limit;
+        $key = preg_replace('#@.#','',$client->getUserIdentifier()).'users_'.$page.$limit;
+        $userList = $cache->get($key, function(ItemInterface $item) use($offset, $users, $client, $limit)
         {
-            $item->expiresAfter(10000);
+            $item->expiresAfter(3600);
             $item->tag('users'.preg_replace('#@.#','',$client->getUserIdentifier()));
-            return $users->findByClientsWithPagination($client, $offset);
+            return $users->findByClientsWithPagination($client, $offset, $limit);
         });
         $context = SerializationContext::create()->setGroups(['client_user']);
         return $this->json([$userList, 'page' => $page.'/'.$pages], context: $context);
