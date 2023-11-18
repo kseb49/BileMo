@@ -83,6 +83,8 @@ Les endpoints suivants nécessitent un rôle administrateur :
 
 Les [données initiales](https://github.com/kseb49/BileMo#installation) octroient ce rôle à un client sur deux.
 
+Le mot de passe est __123456__ pour l'ensemble des clients.
+
 ## Documentation
 
 La documentation est disponible au lien suivant :
