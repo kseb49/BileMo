@@ -50,7 +50,10 @@ nelmio_api_doc:
                                             default: client@email.com
                                         password:
                                             type: string
-                                            default: password
+                                            default: 123456
+                                    example:
+                                        username: foo@bar.com
+                                        password: "123456"
                     responses:
                         '200':
                             description: Obtention du **jeton d'authentification**
