@@ -75,7 +75,7 @@ class ProductController extends AbstractController
         if ($page > $pages) {
             throw new HttpException(404, "Cette page n'existe pas");
         }
-        $offset = ($page === 1) ? ($page - 1) : (($page*$limit)- $limit);
+        $offset = ($page === 1) ? ($page - 1) : (($page*$limit) - $limit);
         // $products = $this->caches->cache($offset, Products::class, 'products_list_'.$page);
         $products = $cache->get('products_list_'.$page.$limit, function (ItemInterface $item) use ($productsRepo, $offset, $limit)
             {
@@ -123,11 +123,11 @@ class ProductController extends AbstractController
      */
     public function singleProduct(CacheInterface $cache, int $id, ProductsRepository $productsRepo): JsonResponse
     {
-        $product = $cache->get('product'.$id, function(ItemInterface $item) use ($productsRepo, $id)
-        {
-            $item->expiresAfter(3600);
-            return $productsRepo->findOneById($id);
-        }
+        $product = $cache->get('product'.$id, function (ItemInterface $item) use ($productsRepo, $id)
+            {
+                $item->expiresAfter(3600);
+                return $productsRepo->findOneById($id);
+            }
         );
         if ($product === null) {
             throw new HttpException(404, "Ce produit n'existe pas");

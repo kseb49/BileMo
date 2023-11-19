@@ -137,14 +137,16 @@ class UsersController extends AbstractController
         $client = $this->getUser();
         $key = preg_replace('#@.#', '', $client->getUserIdentifier()).'singleUser'.$id;
         $user = $cache->get($key, function (ItemInterface $item) use ($users, $id, $client)
-        {
-            $item->expiresAfter(3600);
-            $item->tag('users'.$id);
-            return $users->findOneBy(['id' => $id, 'clients' => $client]);
-        });
+            {
+                $item->expiresAfter(3600);
+                $item->tag('users'.$id);
+                return $users->findOneBy(['id' => $id, 'clients' => $client]);
+            }
+        );
         if ($user === null) {
             return $this->json(["message" => "Vous n'avez pas d'utilisateurs avec cet identifiant"], status: 404);
         }
+
         $context = SerializationContext::create()->setGroups(['client_user']);
         return $this->json($user, context:$context);
 

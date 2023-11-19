@@ -81,13 +81,11 @@ Les endpoints suivants nécessitent un rôle administrateur :
 `/api/users/{{id}}`
 
 
-Les [données initiales](https://github.com/kseb49/BileMo#installation) octroient ce rôle à un client sur deux.
+Les [données initiales](https://github.com/kseb49/BileMo#installation) octroient ce rôle à un client sur deux, le mot de passe par défaut est **123456**.
 
-Le mot de passe est **123456** pour l'ensemble des clients.
 
 ## Documentation
 
 La documentation est disponible au lien suivant :
 
 `/api/doc`
-
