@@ -24,6 +24,10 @@ class ProductController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Retourne la liste des produits de la page demandée',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Products::class))
+        )
     )]
     #[OA\Response(
         response: 404,
