@@ -183,11 +183,7 @@ class UsersController extends AbstractController
         description: "Erreur dans la requête / body"
         )
     ]
-    #[OA\RequestBody(
-        required:true,
-        description:"Les informations de l'utilisateur que l'on souhaite crééer",
-    )]
-    #[OA\Tag(name: 'Request_body')]
+    #[OA\Tag(name: 'Users')]
     /**
      * Create an user
      *
